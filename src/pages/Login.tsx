@@ -4,9 +4,12 @@ import { useLoginMutation } from "../redux/features/auth/authApi";
 import { useAppDispatch } from "../redux/hook";
 import { verifyToken } from "../utils/verifyToken";
 import { setUser } from "../redux/features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { TUser } from "../Types/user.type";
 
 export const Login = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
   const [login, { error, data }] = useLoginMutation();
   console.log("data", data);
@@ -18,8 +21,10 @@ export const Login = () => {
     };
     const res = await login(userInfo).unwrap();
 
-    const user = verifyToken(res.data.accessToken);
-    dispatch(setUser({ user: user, accessToken: res.data.accessToken }));
+    const user = verifyToken(res.data.accessToken) as TUser;
+
+    dispatch(setUser({ user: user, token: res.data.accessToken }));
+    navigate(`/${user.role}/dashboard`);
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
